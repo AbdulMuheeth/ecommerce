@@ -12,9 +12,11 @@ import type { AppDispatch, RootState } from "./redux/store";
 import { QuerySubState } from "@reduxjs/toolkit/query";
 import { User } from "./types/types";
 import { GetUserResponse } from "./types/api-types";
-import { UserReducerInitialState } from "./types/reducer-types";
+import { UserReducerInitialStateType } from "./types/reducer-types";
 import ProtectedRoute from "./components/protectedRoute";
 import OrderDetails from "./pages/orderDetails";
+// import "./styles/app.scss";
+
 
 // import Cart from "./pages/cart"; // Component which are declared here are loaded when default localhost url is loaded // to make load only when the route path is called then we need to lazy load the components
 const Home = lazy(() => import("./pages/home")); // dynamically importing the values
@@ -50,12 +52,12 @@ const App = () => {
 
   // separate fetch query
   const { user, loading } = useSelector(
-    (state: { userReducer: UserReducerInitialState }) => state.userReducer
+    (state: { userReducer: UserReducerInitialStateType }) => state.userReducer
   );
 
   const dispatch = useDispatch();
 
-  console.log("user",user)
+  // console.log("user",user)
 
   useEffect(() => {
     // if(data) // using rtk query to get results 🙏

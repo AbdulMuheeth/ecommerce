@@ -2,10 +2,22 @@ import React from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "../components/productCard";
 import { useLatestProductsQuery } from "../redux/apis/productAPI";
+import { Product } from "../types/types";
+import toast from "react-hot-toast";
+import Loader, { Skeleton } from "../components/loader";
 
 const Home = () => {
 
-  const {} = useLatestProductsQuery("");
+  const {data,isLoading,error} = useLatestProductsQuery("");
+
+  if(error){
+    console.log(error)
+      toast.error(error.data.message);
+  }
+
+  const addToCartHandler = ()=>{
+
+  }
 
   return (
     <div className="home">
@@ -18,14 +30,22 @@ const Home = () => {
         </Link>
       </h1>
       <main>
-        <ProductCard
-          productId="12"
-          name="prod1"
-          price={20}
-          stock={1}
-          handler={() => {}}
-          photo="https://images.pexels.com/photos/2783873/pexels-photo-2783873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-        ></ProductCard>
+        
+        { isLoading?
+          <Skeleton width={"80vw"}/>
+          // here data is getting any because we have used any for the api Query while getting reducers hook
+          : data?.products.map((product:Product)=>(
+            <ProductCard
+              key={product._id}
+              productId={product._id}
+              name={product.name}
+              price={product.price}
+              stock={product.stock}
+              handler={addToCartHandler}
+              photo={product.photo}
+            />
+          ))
+        }
       </main>
     </div>
   );

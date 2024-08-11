@@ -1,9 +1,17 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Column } from "react-table";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import TableHOC from "../../components/admin/TableHOC";
+import { useAllProductsQuery } from "../../redux/apis/productAPI";
+import toast from "react-hot-toast";
+import { CustomError, Product } from "../../types/types";
+import { server } from "../../redux/store";
+import { UserReducerInitialStateType } from "../../types/reducer-types";
+import { useSelector } from "react-redux";
+import { userReducer } from "../../redux/reducers/userReducer";
+import { Skeleton } from "../../components/loader";
 
 interface DataType {
   photo: ReactElement;
@@ -60,7 +68,35 @@ const arr: Array<DataType> = [
 ];
 
 const Products = () => {
+
+  
   const [rows, setRows] = useState<DataType[]>(arr);
+  const {user} = useSelector((state:{ userReducer:UserReducerInitialStateType} )=>{ 
+    // console.log(state); // {userApi: {…}, userReducer: {…}, productApi: {…}}
+    return state.userReducer
+  })
+  
+  const {isError,error,isLoading,data} =  useAllProductsQuery("13")
+
+  if(isError){
+    const err = error as CustomError
+    toast.error(err.data.message);
+  }
+
+  useEffect(()=>{
+    if(data){
+      setRows(data?.products.map((product:Product)=>(
+        {
+          photo:<img src={`${server}/${product.photo}`}/>,
+          name: product.name,
+          price: product.price,
+          stock: product.stock,
+          action: <Link to={`/admin/product/${product._id}`}>Manage</Link>
+        }
+      )))
+    }
+  },[data])
+
 
   const Table = TableHOC<DataType>(
     columns,
@@ -71,6 +107,11 @@ const Products = () => {
   )();
 
   return (
+    <>
+    
+    {isLoading?
+      <Skeleton length={10}/>
+    :
     <div className="admin-container">
       <AdminSidebar />
       <main>{Table}</main>
@@ -78,6 +119,8 @@ const Products = () => {
         <FaPlus />
       </Link>
     </div>
+    }
+    </>
   );
 };
 

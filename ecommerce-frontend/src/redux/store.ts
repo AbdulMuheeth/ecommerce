@@ -3,7 +3,8 @@ import { userAPI } from "./apis/userAPI";
 import { userReducer } from "./reducers/userReducer";
 import { productAPI } from "./apis/productAPI";
 
-// export const server = "";
+export const server = import.meta.env.VITE_SERVER
+// console.log("ur;",import.meta.env.BASE_URL); //returns : /
 
 export const store = configureStore({
   reducer: {

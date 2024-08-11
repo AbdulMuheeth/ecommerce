@@ -24,6 +24,7 @@ export const getLatestProducts = TryCatch(
       myCache.set("latest-products", JSON.stringify(products));
     }
 
+    
     return res.status(200).json({
       success: true,
       products,

@@ -16,3 +16,13 @@ export interface Product{
     photo:string,
     _id:string
 }
+
+export type Category = string;
+
+export interface CustomError{
+    status:number,
+    data:{
+        message:string,
+        success:boolean
+    }
+}

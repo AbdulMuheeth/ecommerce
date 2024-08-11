@@ -1,5 +1,10 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
+import { useNewProductMutation } from "../../../redux/apis/productAPI";
+import { useSelector } from "react-redux";
+import { UserReducerInitialStateType } from "../../../types/reducer-types";
+import { responseToast } from "../../../utils/features";
+import { useNavigate } from "react-router-dom";
 
 const NewProduct = () => {
   const [name, setName] = useState<string>("");
@@ -9,14 +14,42 @@ const NewProduct = () => {
   const [photoPrev, setPhotoPrev] = useState<string>("");
   const [photo, setPhoto] = useState<File>();
 
+  const navigate = useNavigate();
+
+
+  const {user,loading} = useSelector((state:{ userReducer:UserReducerInitialStateType})=>state.userReducer)
+
+  const [createProduct] = useNewProductMutation();
+
+  const submitHandler = async(e: FormEvent<HTMLFormElement>) => {
+
+    e.preventDefault();
+
+    if(!name || !stock || !price || !photo || !category){
+      return;
+    }
+
+    const formData = new FormData();  // accepts only String values?
+    formData.set("name",name);
+    formData.set("price",price.toString());
+    formData.set("stock",stock.toString());
+    formData.set("category",category);
+    formData.set("photo",photo);
+    
+    
+    const res = await createProduct({id:user?._id,formData})
+
+    responseToast(res,navigate,"/admin/product")
+  }
+
   const changeImageHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = e.target.files?.[0];
 
     const reader: FileReader = new FileReader();
 
     if (file) {
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
+      reader.readAsDataURL(file); // return result:: The result is a string with a data: URL representing the file's data. // The value is null if the reading is not yet complete or was unsuccessful.
+      reader.onloadend = () => { // fired when a file read has completed, successfully or not.
         if (typeof reader.result === "string") {
           setPhotoPrev(reader.result);
           setPhoto(file);
@@ -30,12 +63,13 @@ const NewProduct = () => {
       <AdminSidebar />
       <main className="product-management">
         <article>
-          <form>
+          <form onSubmit={submitHandler}>
             <h2>New Product</h2>
             <div>
               <label>Name</label>
               <input
                 type="text"
+                required
                 placeholder="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -44,6 +78,7 @@ const NewProduct = () => {
             <div>
               <label>Price</label>
               <input
+                required
                 type="number"
                 placeholder="Price"
                 value={price}
@@ -53,6 +88,7 @@ const NewProduct = () => {
             <div>
               <label>Stock</label>
               <input
+                required
                 type="number"
                 placeholder="Stock"
                 value={stock}
@@ -63,6 +99,7 @@ const NewProduct = () => {
             <div>
               <label>Category</label>
               <input
+                required
                 type="text"
                 placeholder="eg. laptop, camera etc"
                 value={category}
@@ -72,7 +109,7 @@ const NewProduct = () => {
 
             <div>
               <label>Photo</label>
-              <input type="file" onChange={changeImageHandler} />
+              <input type="file" required onChange={changeImageHandler} />
             </div>
 
             {photoPrev && <img src={photoPrev} alt="New Image" />}
