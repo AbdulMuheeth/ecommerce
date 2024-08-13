@@ -1,4 +1,4 @@
-export interface User {
+export type User = {
     _id:string,
     name:string,
     photo:string,
@@ -8,7 +8,7 @@ export interface User {
     dob:string,
 }
 
-export interface Product{
+export type Product = {
     name:string,
     price:number,
     stock:number,
@@ -25,4 +25,21 @@ export interface CustomError{
         message:string,
         success:boolean
     }
+}
+
+export type ShippingInfo = {
+    address:string,
+    city:string,
+    state:string,
+    country:string,
+    pinCode:string,
+}
+
+export type CartItems = {
+    productId: string,
+    photo: string,
+    name:string,
+    price:number,
+    quantity:number,
+    stock:number,
 }

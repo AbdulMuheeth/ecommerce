@@ -1,69 +1,95 @@
 import React, { useEffect, useState } from 'react'
 import Coupon from './admin/apps/coupon'
 import { VscError } from 'react-icons/vsc'
-import CartItem from '../components/cartItem'
+import CartItemCard from '../components/cartItem'
 import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { CartReducerInitialStateType } from '../types/reducer-types'
+import { addToCart, calculateDiscount, calculatePrice, removeCartItem } from '../redux/reducers/cartReducer'
+import { CartItems } from '../types/types'
+import { server } from '../redux/store'
+import axios from 'axios'
 
 
-const shippingCharges = 70
-const subTotal = 1200
-const tax = (subTotal*0.18)
-const discount = 400
-const total = shippingCharges + subTotal + tax - discount;
-
-const cartItems = [
-
-  {
-    productId:"12",
-    name:"prod1",
-    price:20,
-    stock:10,
-    photo:"https://images.pexels.com/photos/2783873/pexels-photo-2783873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    quantity: 10,
-    
-  },
-  {
-    productId:"12",
-    name:"prod1",
-    price:20,
-    stock:10,
-    photo:"https://images.pexels.com/photos/2783873/pexels-photo-2783873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    quantity: 10,
-    
-  }
-
-];
+// const shippingCharges = 70
+// const subTotal = 1200
+// const tax = (subTotal*0.18)
+// const discount = 400
+// const total = shippingCharges + subTotal + tax - discount;
+// const cartItems = [];
 
 const Cart = () => {
+
+  const {cartItems,subtotal:subTotal,discount,total,shippingCharges,tax} = useSelector((state:{cartReducer:CartReducerInitialStateType})=>state.cartReducer)
 
   const [couponCode,setCouponCode] = useState<string>("");
   const [isValidCouponCode,setIsValidCouponCode]  = useState<boolean>(false);
 
+  const dispatch = useDispatch();
+
+  const addToCartHandler =  function (cartItem:CartItems,val:string){
+    
+    if(val === 'reduce'){
+      if(cartItem.quantity <= 1) return;
+      
+        dispatch(addToCart({...cartItem,quantity:cartItem.quantity-1}))
+        // dispatch(calculatePrice());
+      
+    }
+    else if(val === 'increase'){
+      if(cartItem.quantity >= cartItem.stock) return
+      dispatch(addToCart({...cartItem,quantity:cartItem.quantity+1}))
+      // dispatch(calculatePrice());
+    }
+
+  }
+
+  const removeHandler = function(productId:string){
+    console.log(productId);
+    dispatch(removeCartItem(productId));
+    // dispatch(calculatePrice());
+  }
+
   useEffect(()=>{
     // debouncing the coupon validation
+    const src = axios.CancelToken.source() // similar to abort controller (cancels initiated fetch requests)
+
     const timeOutHandler = setTimeout(()=>{
-      if(Math.random()>0.5)
-        setIsValidCouponCode(true)
-      else
-      setIsValidCouponCode(false)
+
+
+      axios.get(`${server}/api/v1/payment/discount?coupon=${couponCode}`,{cancelToken:src.token})
+        .then((res)=>{
+          dispatch(calculateDiscount(res.data.discount));
+          setIsValidCouponCode(true)
+          dispatch(calculatePrice());
+        })
+        .catch(()=>{
+          dispatch(calculateDiscount(0));
+          setIsValidCouponCode(false)
+          dispatch(calculatePrice());
+        })
 
     },1000);
 
     return () => {
       clearTimeout(timeOutHandler);
+      src.cancel(); // cancelling the axios.get call of coupon, when coupon value is changed
       setIsValidCouponCode(false); // makes coupon invalid directly 
     }
 
   },[couponCode])
 
+  useEffect(()=>{
+    dispatch(calculatePrice());
+  },[cartItems])
 
 
   return (
     <div className='cart'>
       <main>
 
-        {cartItems.length>0? (cartItems?.map((item,idx)=>{ 
-          return <CartItem cartItem={item} key={idx+"cart Item"}/>
+        {cartItems.length>0? (cartItems.map((item,idx)=>{ 
+          return <CartItemCard cartItem={item} removeHandler={removeHandler} addToCartHandler={addToCartHandler} key={idx+"cart Item"}/>
         })):(
           <h1>No Items Added</h1> 
         )}
@@ -71,7 +97,7 @@ const Cart = () => {
       </main>
       <aside>
         <p>Subtotal: ${subTotal}</p>
-        <p>Shipping Charges: ${subTotal}</p>
+        <p>Shipping Charges: ${shippingCharges}</p>
         <p>Tax: ${tax}</p>
         <p>Discount:<em className='red'> - ${discount} </em></p>
 

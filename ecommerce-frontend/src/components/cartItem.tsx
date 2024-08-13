@@ -1,30 +1,38 @@
 import React from 'react'
 import { FaTrash } from 'react-icons/fa';
 import {Link} from 'react-router-dom';
+import { server } from '../redux/store';
+import { addToCart, removeCartItem } from '../redux/reducers/cartReducer';
+import { CartItems } from '../types/types';
+import { useDispatch } from 'react-redux';
 
 type CartItemType = {
-    cartItem: any
+    cartItem: CartItems
+    addToCartHandler: (cartItem: any, val: string) => void,
+    removeHandler:(productId: string) => void
 }
 
-const CartItem = ({cartItem}:CartItemType) => {
+const CartItem = ({cartItem,addToCartHandler,removeHandler}:CartItemType) => {
 
-
+  
   const {productId,name,price,photo,quantity} = cartItem;
+  
+
   return (
     <div className="cartItem">
-      <img src={photo} alt={name} />
+      <img src={`${server}/${photo}`} alt={name} />
       <article>
         <Link to={`/product/${productId}`}>{name}</Link>
         <span>${price}</span>
       </article>
 
       <div>
-        <button>-</button>
+        <button onClick={()=>addToCartHandler(cartItem,"reduce")}>-</button>
         <p>{quantity}</p>
-        <button>+</button>
+        <button onClick={()=>addToCartHandler(cartItem,"increase")}>+</button>
       </div>
 
-      <button>
+      <button onClick={()=>removeHandler(productId)}>
         <FaTrash/>
       </button>
  

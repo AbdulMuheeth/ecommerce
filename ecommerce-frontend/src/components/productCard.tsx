@@ -1,6 +1,7 @@
 import React from 'react'
 import { FaPlus } from 'react-icons/fa'
 import { server } from '../redux/store'
+import { CartItems } from '../types/types'
 
 
 type ProductProps = {
@@ -9,7 +10,7 @@ type ProductProps = {
     price:number,
     name:string,
     stock:number,
-    handler(): void
+    handler: (cartItem: CartItems) => string | undefined,
 }
 
 // var server = ;
@@ -22,7 +23,7 @@ const ProductCard = ({productId,photo,price,name,stock,handler}:ProductProps) =>
         <span>${price}</span>
 
         <div> {/* will be used to overlay*/}
-            <button onClick={()=>handler()}><FaPlus/></button>
+            <button onClick={()=>handler({photo,price,name,stock,productId,quantity:1})}><FaPlus/></button>
         </div>
     </div>
   )
