@@ -14,7 +14,7 @@ export const myOrders = TryCatch(
 
     if (myCache.has(key)) orders = JSON.parse(myCache.get(key) as string);
     else {
-      orders = await Order.find({ user });
+      orders = await Order.find({ user }).populate("user", "name");
       myCache.set(key, JSON.stringify(orders));
     }
 
@@ -88,6 +88,7 @@ export const newOrder = TryCatch(
     if (!shippingInfo || !user || !subtotal || !tax || !total || !orderItems)
       return next(new ErrorHandler("Please enter all Fields", 400));
 
+    // has check for existance of the items & with required has been done?
     await Order.create({
       shippingInfo,
       user,

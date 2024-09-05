@@ -32,7 +32,7 @@ export type ShippingInfo = {
     city:string,
     state:string,
     country:string,
-    pinCode:string,
+    pinCode:number,
 }
 
 export type CartItems = {
@@ -42,4 +42,24 @@ export type CartItems = {
     price:number,
     quantity:number,
     stock:number,
+}
+
+export type OrderItems = Omit<CartItems,"stock"> & {
+    _id:string
+}
+
+export type OrderType = {
+    orderItems:OrderItems[],
+    shippingInfo:ShippingInfo,
+    _id:string,
+    user:{
+        _id:string,
+        name:string,
+    },
+    subtotal:number,
+    total:number,
+    tax:number,
+    shippingCharges:number,
+    discount:number,
+    status:string,
 }

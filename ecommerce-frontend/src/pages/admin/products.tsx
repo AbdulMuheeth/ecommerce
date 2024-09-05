@@ -70,11 +70,12 @@ const arr: Array<DataType> = [
 const Products = () => {
 
   
-  const [rows, setRows] = useState<DataType[]>(arr);
   const {user} = useSelector((state:{ userReducer:UserReducerInitialStateType} )=>{ 
     // console.log(state); // {userApi: {…}, userReducer: {…}, productApi: {…}}
     return state.userReducer
   })
+  
+  const [rows, setRows] = useState<DataType[]>([]);
   
   const {isError,error,isLoading,data} =  useAllProductsQuery("13")
 

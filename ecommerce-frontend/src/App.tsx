@@ -15,6 +15,7 @@ import { GetUserResponse } from "./types/api-types";
 import { UserReducerInitialStateType } from "./types/reducer-types";
 import ProtectedRoute from "./components/protectedRoute";
 import OrderDetails from "./pages/orderDetails";
+import NotFound from "./pages/notFound";
 // import "./styles/app.scss";
 
 
@@ -161,6 +162,11 @@ const App = () => {
               element={<TransactionManagement />}
             />
           </Route>
+
+          <Route
+              path="*"
+              element={<NotFound/>}
+          />
         </Routes>
       </Suspense>
       <Toaster position="bottom-center" />

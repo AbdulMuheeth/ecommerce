@@ -1,4 +1,4 @@
-import { Category, Product, User } from "./types"
+import { CartItems, Category, OrderItems, OrderType, Product, ShippingInfo, User } from "./types"
 
 export type MessageResponse = {
     success:boolean,
@@ -46,4 +46,29 @@ export type UpdateProductRequest = {
 export type ProductResponse = {
     success:boolean,
     product: Product
+}
+
+export type NewOrderRequest = {
+    shippingInfo:ShippingInfo,
+    total:number,
+    subtotal:number,
+    tax:number,
+    shippingCharges:number,
+    orderItems:CartItems[], // here we are considering CartItems over the created OrderItems type b/c orderItems has _id created by mongoDb init (which can't be present order item before creation of order)
+    discount:number,
+    user:string,
+}
+
+export type AllOrdersResponse = {
+    success:boolean,
+    products:OrderType[],
+}
+export type OrderDetailResponse = {
+    success:boolean,
+    order:OrderType,
+}
+
+export type UpdateOrderRequest = {
+    userId:string,
+    orderId:string,
 }

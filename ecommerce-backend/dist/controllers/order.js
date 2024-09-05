@@ -10,7 +10,7 @@ export const myOrders = TryCatch(async (req, res, next) => {
     if (myCache.has(key))
         orders = JSON.parse(myCache.get(key));
     else {
-        orders = await Order.find({ user });
+        orders = await Order.find({ user }).populate("user", "name");
         myCache.set(key, JSON.stringify(orders));
     }
     return res.status(200).json({
@@ -55,6 +55,7 @@ export const newOrder = TryCatch(async (req, res, next) => {
     const { shippingInfo, user, subtotal, tax, shippingCharges, discount, total, orderItems, } = req.body;
     if (!shippingInfo || !user || !subtotal || !tax || !total || !orderItems)
         return next(new ErrorHandler("Please enter all Fields", 400));
+    // has check for existance of the items & with required has been done?
     await Order.create({
         shippingInfo,
         user,
